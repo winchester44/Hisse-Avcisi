@@ -20,10 +20,10 @@ if BASE_DIR not in sys.path:
 env_path = os.path.join(BASE_DIR, ".env")
 load_dotenv(env_path, override=True)
 
-# API Anahtarlarını .env'den çekiyoruz (OpenAI kotanız dolduğu için Google Gemini'ye geçiş yapabilirsiniz)
+# API Anahtarlarını .env'den çekiyoruz (OpenAI kotanız dolduğu için Google Gemini veya DeepSeek'e geçiş yapabilirsiniz)
 # os.environ["OPENAI_API_KEY"] = "sk-..."  # Kotası dolmuş anahtarı iptal ettik
-if os.getenv("OPENAI_API_KEY") is None and os.getenv("GOOGLE_API_KEY") is None:
-    print("UYARI: .env dosyasında OPENAI_API_KEY veya GOOGLE_API_KEY bulunamadı!")
+if os.getenv("OPENAI_API_KEY") is None and os.getenv("GOOGLE_API_KEY") is None and os.getenv("DEEPSEEK_API_KEY") is None:
+    print("UYARI: .env dosyasında OPENAI_API_KEY, GOOGLE_API_KEY veya DEEPSEEK_API_KEY bulunamadı!")
 
 from ai_integrations import run_rag_query, run_debate_analysis, run_kronos_prediction
 

@@ -635,9 +635,12 @@ def screen_bist_stocks(index_name='XU100', max_price=500.0, min_prob=52.0, pe_ma
             except: pass
             hist, _ = fetch_data(t, period="2y")
             if hist.empty: continue
+            current_price = float(hist['Close'].iloc[-1])
+            if current_price > max_price or current_price == 0:
+                continue
             is_champion, prob, rsi, err = fast_ml_filter(hist, min_prob=min_prob, market_type='bist')
             if is_champion:
-                champions.append({"Ticker": t, "Prob": prob, "RSI": rsi, "Price": hist['Close'].iloc[-1], "Borsapy": borsapy_data})
+                champions.append({"Ticker": t, "Prob": prob, "RSI": rsi, "Price": current_price, "Borsapy": borsapy_data})
             if err: scan_errors.append(f"{t}: {err}")
             if len(champions) >= 15: break
         except Exception as exc:

@@ -118,7 +118,8 @@ OLLAMA_LLM_ORDER = [model.to_choice_tuple() for model in OLLAMA_MODELS]
 def get_model_info(model_name: str, model_provider: str) -> LLMModel | None:
     """Get model information by model_name"""
     all_models = AVAILABLE_MODELS + OLLAMA_MODELS
-    return next((model for model in all_models if model.model_name == model_name and model.provider == model_provider), None)
+    provider_str = model_provider.value if hasattr(model_provider, 'value') else str(model_provider)
+    return next((model for model in all_models if model.model_name == model_name and model.provider.value.lower() == provider_str.lower()), None)
 
 
 def find_model_by_name(model_name: str) -> LLMModel | None:
@@ -140,6 +141,11 @@ def get_models_list():
 
 
 def get_model(model_name: str, model_provider: ModelProvider, api_keys: dict = None) -> ChatOpenAI | ChatGroq | ChatOllama | GigaChat | None:
+    if isinstance(model_provider, str):
+        for p in ModelProvider:
+            if p.value.lower() == model_provider.lower():
+                model_provider = p
+                break
     if model_provider == ModelProvider.GROQ:
         api_key = (api_keys or {}).get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
         if not api_key:
