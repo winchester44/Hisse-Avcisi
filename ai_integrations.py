@@ -158,6 +158,9 @@ def run_trading_agents(ticker_symbol: str):
             elif provider == "openai":
                 config["deep_think_llm"] = "gpt-4o"
                 config["quick_think_llm"] = "gpt-4o-mini"
+            elif provider == "deepseek":
+                config["deep_think_llm"] = "deepseek-reasoner"
+                config["quick_think_llm"] = "deepseek-chat"
             else:
                 config["deep_think_llm"] = "llama3"
                 config["quick_think_llm"] = "llama3"
@@ -170,8 +173,10 @@ def run_trading_agents(ticker_symbol: str):
         return str(decision)
     except Exception as e:
         err_msg = str(e)
-        if "RESOURCE_EXHAUSTED" in err_msg or "429" in err_msg or "quota" in err_msg.lower():
-            return "TradingAgents pasif: Google Gemini API kotanız (günlük 20 ücretsiz istek sınırı) dolmuştur. Lütfen .env dosyasından API anahtarınızı güncelleyin veya LLM sağlayıcısını değiştirin."
+        provider_name = "DeepSeek" if provider == "deepseek" else "Google Gemini"
+        api_key_name = "DEEPSEEK_API_KEY" if provider == "deepseek" else "GOOGLE_API_KEY"
+        if "RESOURCE_EXHAUSTED" in err_msg or "429" in err_msg or "quota" in err_msg.lower() or "insufficient_quota" in err_msg.lower() or "balance" in err_msg.lower():
+            return f"TradingAgents pasif: {provider_name} API kotanız/bakiyeniz dolmuştur veya yetersizdir. Lütfen .env dosyasından {api_key_name} değerini güncelleyin veya LLM sağlayıcısını değiştirin."
         return f"TradingAgents pasif (Ollama/API Key eksik veya calismiyor): {e}"
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -214,15 +219,20 @@ def run_ai_hedge_fund(ticker_symbol: str):
             return result.stdout
         else:
             err_msg = result.stderr
-            if "RESOURCE_EXHAUSTED" in err_msg or "429" in err_msg or "quota" in err_msg.lower():
-                return "AI Hedge Fund pasif: Google Gemini API kotanız (günlük 20 ücretsiz istek sınırı) dolmuştur. Lütfen .env dosyasından API anahtarınızı güncelleyin veya LLM sağlayıcısını değiştirin."
+            provider_name = "DeepSeek" if provider == "deepseek" else "Google Gemini"
+            api_key_name = "DEEPSEEK_API_KEY" if provider == "deepseek" else "GOOGLE_API_KEY"
+            if "RESOURCE_EXHAUSTED" in err_msg or "429" in err_msg or "quota" in err_msg.lower() or "insufficient_quota" in err_msg.lower() or "balance" in err_msg.lower():
+                return f"AI Hedge Fund pasif: {provider_name} API kotanız/bakiyeniz dolmuştur veya yetersizdir. Lütfen .env dosyasından {api_key_name} değerini güncelleyin veya LLM sağlayıcısını değiştirin."
             return f"Hedge Fund hata dondurdu: {result.stderr[:500]}..."
     except subprocess.TimeoutExpired:
         return "AI Hedge Fund zaman asimina ugradi."
     except Exception as e:
         err_msg = str(e)
-        if "RESOURCE_EXHAUSTED" in err_msg or "429" in err_msg or "quota" in err_msg.lower():
-            return "AI Hedge Fund pasif: Google Gemini API kotanız (günlük 20 ücretsiz istek sınırı) dolmuştur. Lütfen .env dosyasından API anahtarınızı güncelleyin veya LLM sağlayıcısını değiştirin."
+        provider = os.getenv("LLM_PROVIDER", "ollama").lower()
+        provider_name = "DeepSeek" if provider == "deepseek" else "Google Gemini"
+        api_key_name = "DEEPSEEK_API_KEY" if provider == "deepseek" else "GOOGLE_API_KEY"
+        if "RESOURCE_EXHAUSTED" in err_msg or "429" in err_msg or "quota" in err_msg.lower() or "insufficient_quota" in err_msg.lower() or "balance" in err_msg.lower():
+            return f"AI Hedge Fund pasif: {provider_name} API kotanız/bakiyeniz dolmuştur veya yetersizdir. Lütfen .env dosyasından {api_key_name} değerini güncelleyin veya LLM sağlayıcısını değiştirin."
         return f"AI Hedge Fund pasif: {e}"
 
 
